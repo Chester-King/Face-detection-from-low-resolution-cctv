@@ -2,9 +2,7 @@
 import numpy as np
 import cv2
 import os
-import glob
 
-from PIL import Image, ImageDraw, ImageFilter
 def crop_center(pil_img, crop_width, crop_height):
     img_width, img_height = pil_img.size
     return pil_img.crop(((img_width - crop_width) // 2,
@@ -29,6 +27,7 @@ out = cv2.VideoWriter(
     15.,
     (640,480))
 x=0
+os.mkdir('detections')
 while(True):
     # Capture frame-by-frame
     x+=1
@@ -44,9 +43,11 @@ while(True):
     boxes, weights = hog.detectMultiScale(frame, winStride=(8,8) )
 
     boxes = np.array([[x, y, x + w, y + h] for (x, y, w, h) in boxes])
-
+    k=0
+    os.mkdir("detections/frame"+str(x))
     for (xA, yA, xB, yB) in boxes:
         # display the detected boxes in the colour picture
+        k+=1
         yA = yA+10
         yB = yB-100
         xA +=40
@@ -55,7 +56,11 @@ while(True):
         yC = (yA+yB)//2
         # cv2.rectangle(frame, (xA, yA), (xB, yB),(0, 255, 0), 2)
         cv2.circle(frame, (xC,yC), radius=27, color=(0, 0, 255), thickness=2)
-            
+        ci = frame[yC-27:yC+27,xC-27:xC+27]
+        
+        path = "detections/frame"+str(x)+"/"+str(k)+".png"
+        cv2.imwrite(path,ci)
+        
                           
     print(x)
     # Write the output video 
